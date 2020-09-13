@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Tân Nguyễn</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style>
+        button {
+            width: 280px;
+        }
+    </style>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <canvas class="bg-primary ml-4 mt-4" width="280" height="350" id="game"></canvas><br/>
+    <button class="btn btn-primary ml-4" onclick="playAgain()" type="button">Play</button>
+
+    <!-- <script src="js/flappyBird.js"></script> -->
+
+    <script>
+        var canvas = document.getElementById("game");
+        var context = canvas.getContext('2d');
+
+        var Bird = {
+            x: 50,
+            y: 50,
+            width: 40,
+            height: 40,
+            isMove: false
+        };
+
+        var pipe = [];
+
+        var isGameOver = false;
+
+        pipe[0] = {
+            x: canvas.width,
+            y: 70
+        };
+
+        var khoangCach = 120;
+        var speedPipe = 2;
+        var speedBird = 4;
+        var constant;
+        var score = 0;
+
+        var bird = new Image();
+        var pipeUp = new Image();
+        var pipeDown = new Image();
+        var bg = new Image();
+
+        var gameOverAudio = new Audio();
+        var scoreAudio = new Audio();
+        var bgAudio = new Audio();
+
+        var dem = false;
+
+
+        gameOverAudio.src = "https://audio-previews.elements.envatousercontent.com/files/115643308/preview.mp3?fbclid=IwAR1D2SLZl1m561i0avQ2GnyF76bGywO2dpay5WIKKcJISk0KGNrahs5CmFI";
+        scoreAudio.src = "https://audio-previews.elements.envatousercontent.com/files/116851414/preview.mp3?fbclid=IwAR3KUPavyz88ynSApEAZQS1bDO0UbvaN95wSNrWN3cQS2Tln80T9vJUyjAU";
+        bgAudio.src = "https://audio-previews.elements.envatousercontent.com/files/149554655/preview.mp3?fbclid=IwAR3Fej9q2gfl9OmfO5n-_UUPwQBhnc2ipLrtcf-qo3dZMLEavQRRU0fBMkQ";
+
+        // bird.src = "images/bird.png";
+        // pipeUp.src = "images/pipe.png";
+        // pipeDown.src = "images/pipe.png";
+        // bg.src = "images/bg.png";
+
+        bird.src = "https://static.thenounproject.com/png/80049-200.png";
+        pipeUp.src = "https://gomsuloian.vn/wp-content/uploads/2017/07/Alu-trong-nha-20.jpg";
+        pipeDown.src = "https://gomsuloian.vn/wp-content/uploads/2017/07/Alu-trong-nha-20.jpg";
+        bg.src = "https://user-images.githubusercontent.com/18351809/46888871-624a3900-ce7f-11e8-808e-99fd90c8a3f4.png";
+
+        document.addEventListener("touchstart", function(event) {
+            if (event.isTrusted) {
+                Bird.isMove = true;
+            }
+
+        });
+
+        document.addEventListener("touchend", function(event) {
+            if (event.isTrusted)
+                Bird.isMove = false;
+        });
+
+        document.addEventListener("keydown", function(event) {
+            if (event.isTrusted)
+                Bird.isMove = true;
+        });
+
+        document.addEventListener("keyup", function(event) {
+            if (event.isTrusted)
+                Bird.isMove = false;
+        });
+
+
+
+        function moveBird(event) {
+            if (Bird.isMove) {
+                Bird.y -= speedBird;
+            } else Bird.y += speedBird;
+        }
+
+        var isPlay = false;
+
+
+        var i = 3;
+        isPlay = false;
+
+        function playAgain() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(bg, 0, 0, canvas.width, canvas.height);
+            context.drawImage(bird, 50, 50, Bird.width, Bird.height);
+            context.drawImage(pipeUp, canvas.width - 40, 0, 40, pipe[0].y);
+            context.drawImage(pipeDown, canvas.width - 40, pipe[0].y + khoangCach, pipeUp.width, canvas.height - khoangCach - pipe[0].y);
+            reload();
+        }
+
+
+
+        function reload() {
+            setTimeout(function() {
+                if (i > 0) {
+                    context.beginPath();
+
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.drawImage(bg, 0, 0, canvas.width, canvas.height);
+                    context.drawImage(bird, 50, 50, Bird.width, Bird.height);
+                    context.drawImage(pipeUp, canvas.width - 40, 0, 40, pipe[0].y);
+                    context.drawImage(pipeDown, canvas.width - 40, pipe[0].y + khoangCach, pipeUp.width, canvas.height - khoangCach - pipe[0].y);
+                    context.font = '70px sans-serif';
+                    context.fillStyle = 'green';
+                    context.fillText(i, 130, 150);
+
+                    context.closePath();
+                    reload();
+                } else {
+                    location.reload();
+                }
+                i--;
+            }, 500);
+        }
+
+        var check = 0;
+
+        context.drawImage(bird, Bird.x, Bird.y);
+
+
+
+
+        function draw() {
+
+
+
+
+            if (isGameOver == false) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(bg, 0, 0, canvas.width, canvas.height);
+                pipeUp.width = 40;
+                pipeUp.height = 200;
+
+
+                for (let i = 0; i < pipe.length; i++) {
+                    // console.log(i);
+                    context.beginPath();
+
+                    context.drawImage(pipeUp, pipe[i].x, 0, pipeUp.width, pipe[i].y);
+                    context.drawImage(pipeDown, pipe[i].x, pipe[i].y + khoangCach, pipeUp.width, canvas.height - khoangCach - pipe[i].y);
+
+                    pipe[i].x -= speedPipe;
+                    console.log(speedPipe);
+                    if (pipe[i].x == 14) {
+                        score++;
+                        scoreAudio.play();
+                    }
+
+                    if (pipe[i].x == 50) {
+                        check++;
+                        pipe.push({
+                            x: canvas.width,
+                            y: Math.floor(Math.random() * 200) + 70
+                        });
+                        check++;
+                    }
+
+                    if (check % 2 == 0) {
+                        context.fillStyle = 'green';
+
+                    }
+
+                    if (Bird.y + Bird.height >= canvas.height ||
+                        (Bird.x + Bird.x - 15 >= pipe[i].x && Bird.x < pipe[i].x + pipeUp.width && Bird.y + Bird.height >= pipe[i].y + khoangCach) ||
+                        Bird.x + Bird.x - 15 >= pipe[i].x && Bird.x < pipe[i].x + pipeUp.width && Bird.y <= pipe[i].y) {
+                        isGameOver = true;
+                    }
+                    context.closePath();
+
+                }
+
+                pipeUp.x--;
+
+                context.fillText("Score: " + score, 10, 30);
+
+
+                context.drawImage(bird, Bird.x, Bird.y, Bird.width, Bird.height);
+                context.font = '20px sans-serif';
+                context.fillStyle = 'blue';
+
+                moveBird();
+                bgAudio.play();
+                // Bird.y += 1.5;
+                requestAnimationFrame(draw);
+
+            } else {
+                context.fillText("GAME OVER", 100, 100);
+                gameOverAudio.play();
+                bgAudio.pause();
+
+            }
+
+        }
+
+        // if (isPlay) {
+        draw();
+        // }
+    </script>
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+
+</html>
